@@ -1,1 +1,36 @@
 rootProject.name = 'goapptiv_document_scanner'
+//
+//// Debug info
+//println "=== Settings.gradle ==="
+//println "Root dir: ${rootDir}"
+//println "OpenCV dir: ${new File(rootDir, 'opencv').absolutePath}"
+//println "========================="
+//
+//include ':opencv'
+//// Debug: Print current directory
+//println "Current directory: ${System.getProperty("user.dir")}"
+//println "Root dir: ${rootDir.absolutePath}"
+//
+//// Include modules
+//include ':opencv'
+//
+//// Try different path approaches
+//def opencvDir = new File(rootDir, 'opencv')
+//println "Looking for OpenCV at: ${opencvDir.absolutePath}"
+//println "OpenCV exists: ${opencvDir.exists()}"
+//println "OpenCV build.gradle exists: ${new File(opencvDir, 'build.gradle').exists()}"
+//
+//if (opencvDir.exists()) {
+//    project(':opencv').projectDir = opencvDir
+//} else {
+//    // Try alternative path - maybe we're building from example/android
+//    def altOpencvDir = new File(rootDir.getParentFile(), 'android/opencv')
+//    println "Trying alternative path: ${altOpencvDir.absolutePath}"
+//    println "Alternative exists: ${altOpencvDir.exists()}"
+//
+//    if (altOpencvDir.exists()) {
+//        project(':opencv').projectDir = altOpencvDir
+//    } else {
+//        throw new GradleException("OpenCV module not found!")
+//    }
+//}
