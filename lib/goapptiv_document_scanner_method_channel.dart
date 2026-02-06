@@ -21,7 +21,7 @@ class MethodChannelGoapptivDocumentScanner
     if (Platform.isAndroid) {
       DeviceInfoPlugin plugin = DeviceInfoPlugin();
       AndroidDeviceInfo android = await plugin.androidInfo;
-      if ((android.version.sdkInt ?? 21) < 33) {
+      if (android.version.sdkInt < 33) {
         permissions.add(Permission.storage);
       }
     }
@@ -46,21 +46,14 @@ class MethodChannelGoapptivDocumentScanner
   @override
   Future<String?> getPictureFromGallery({bool letUserCropImage = true}) async {
     List<Permission> permissions = [];
-    if (Platform.isAndroid) {
-      DeviceInfoPlugin plugin = DeviceInfoPlugin();
-      AndroidDeviceInfo android = await plugin.androidInfo;
-      if ((android.version.sdkInt ?? 21) < 33) {
-        permissions.add(Permission.storage);
-      } else {
-        permissions.addAll([Permission.photos]);
-      }
-    } else if (Platform.isIOS) {
+    if (Platform.isIOS) {
       permissions.add(Permission.mediaLibrary);
+      Map<Permission, PermissionStatus> statuses = await permissions.request();
+      if (statuses.containsValue(PermissionStatus.denied)) {
+        throw Exception(Constants.permissionDenied);
+      }
     }
-    Map<Permission, PermissionStatus> statuses = await permissions.request();
-    if (statuses.containsValue(PermissionStatus.denied)) {
-      throw Exception(Constants.permissionDenied);
-    }
+
     if (Platform.isAndroid) {
       final List<dynamic> pictures = await methodChannel.invokeMethod(
         'getPictureFromGallery',
