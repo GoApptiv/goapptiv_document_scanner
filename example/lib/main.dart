@@ -41,13 +41,18 @@ class _MyAppState extends State<MyApp> {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () async {
-                    final imagePath = await GoapptivDocumentScanner.getPicture(
-                      letUserCropImage: true,
-                    );
-                    if (imagePath != null) {
-                      log(imagePath);
-                      imageFile = File(imagePath);
-                      setState(() {});
+                    try {
+                      final imagePath =
+                          await GoapptivDocumentScanner.getPicture(
+                        letUserCropImage: true,
+                      );
+                      if (imagePath != null) {
+                        log(imagePath);
+                        imageFile = File(imagePath);
+                        setState(() {});
+                      }
+                    } on Exception catch (e) {
+                      print(e);
                     }
                   },
                   child: const Text('Camera'),
@@ -58,14 +63,18 @@ class _MyAppState extends State<MyApp> {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () async {
-                    final imagePath =
-                        await GoapptivDocumentScanner.getPictureFromGallery(
-                      letUserCropImage: true,
-                    );
-                    if (imagePath != null) {
-                      log(imagePath);
-                      imageFile = File(imagePath);
-                      setState(() {});
+                    try {
+                      final imagePath =
+                          await GoapptivDocumentScanner.getPictureFromGallery(
+                        letUserCropImage: true,
+                      );
+                      if (imagePath != null) {
+                        log(imagePath);
+                        imageFile = File(imagePath);
+                        setState(() {});
+                      }
+                    } on Exception catch (e) {
+                      print(e);
                     }
                   },
                   child: const Text('Gallery'),
