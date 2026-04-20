@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:goapptiv_document_scanner/constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'goapptiv_document_scanner_platform_interface.dart';
+
+const String permissionDenied = "PERMISSION_NOT_AVAILABLE";
 
 /// An implementation of [GoapptivDocumentScannerPlatform] that uses method channels.
 class MethodChannelGoapptivDocumentScanner
@@ -18,16 +18,9 @@ class MethodChannelGoapptivDocumentScanner
   @override
   Future<String?> getPicture({bool letUserCropImage = true}) async {
     List<Permission> permissions = [Permission.camera];
-    if (Platform.isAndroid) {
-      DeviceInfoPlugin plugin = DeviceInfoPlugin();
-      AndroidDeviceInfo android = await plugin.androidInfo;
-      if (android.version.sdkInt < 33) {
-        permissions.add(Permission.storage);
-      }
-    }
     Map<Permission, PermissionStatus> statuses = await permissions.request();
     if (statuses.containsValue(PermissionStatus.denied)) {
-      throw Exception(Constants.permissionDenied);
+      throw Exception(permissionDenied);
     }
     if (Platform.isAndroid) {
       final List<dynamic> pictures = await methodChannel.invokeMethod(
@@ -50,7 +43,7 @@ class MethodChannelGoapptivDocumentScanner
       permissions.add(Permission.mediaLibrary);
       Map<Permission, PermissionStatus> statuses = await permissions.request();
       if (statuses.containsValue(PermissionStatus.denied)) {
-        throw Exception(Constants.permissionDenied);
+        throw Exception(permissionDenied);
       }
     }
 

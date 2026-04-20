@@ -16,11 +16,10 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry
-import java.util.logging.Logger
 
 
 /** GoapptivDocumentScanner */
-class GoapptivDocumentScanner : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware {
+class GoapptivDocumentScanner : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var delegate: PluginRegistry.ActivityResultListener? = null
     private var binding: ActivityPluginBinding? = null
     private var pendingResult: Result? = null
@@ -42,12 +41,20 @@ class GoapptivDocumentScanner : FlutterPlugin, MethodChannel.MethodCallHandler, 
         when (call.method) {
             "getPicture" -> {
                 this.pendingResult = result
-                startScan(ImageProvider.CAMERA,call.argument<Boolean>(DocumentScannerExtra.EXTRA_LET_USER_ADJUST_CROP) as Boolean)
+                startScan(
+                    ImageProvider.CAMERA,
+                    call.argument<Boolean>(DocumentScannerExtra.EXTRA_LET_USER_ADJUST_CROP) as Boolean
+                )
             }
+
             "getPictureFromGallery" -> {
-                this.pendingResult = result;
-                startScan(ImageProvider.GALLERY,call.argument<Boolean>(DocumentScannerExtra.EXTRA_LET_USER_ADJUST_CROP) as Boolean)
+                this.pendingResult = result
+                startScan(
+                    ImageProvider.GALLERY,
+                    call.argument<Boolean>(DocumentScannerExtra.EXTRA_LET_USER_ADJUST_CROP) as Boolean
+                )
             }
+
             else -> {
                 result.notImplemented()
             }
@@ -97,11 +104,13 @@ class GoapptivDocumentScanner : FlutterPlugin, MethodChannel.MethodCallHandler, 
                         this.pendingResult?.success(successResponse)
                         return@ActivityResultListener true
                     }
+
                     Activity.RESULT_CANCELED -> {
                         // user closed camera
                         this.pendingResult?.success(emptyList<String>())
                         return@ActivityResultListener true
                     }
+
                     else -> {
                         return@ActivityResultListener false
                     }
@@ -118,17 +127,15 @@ class GoapptivDocumentScanner : FlutterPlugin, MethodChannel.MethodCallHandler, 
     /**
      * create intent to launch document scanner and set custom options
      */
-    private fun createDocumentScanIntent(imageProvider: String,letUserCropImage: Boolean): Intent {
+    private fun createDocumentScanIntent(imageProvider: String, letUserCropImage: Boolean): Intent {
         val documentScanIntent = Intent(activity, DocumentScannerActivity::class.java)
         documentScanIntent.putExtra(
-            DocumentScannerExtra.EXTRA_LET_USER_ADJUST_CROP,
-            letUserCropImage
+            DocumentScannerExtra.EXTRA_LET_USER_ADJUST_CROP, letUserCropImage
         )
         documentScanIntent.putExtra(
-            DocumentScannerExtra.EXTRA_MAX_NUM_DOCUMENTS,
-            1
+            DocumentScannerExtra.EXTRA_MAX_NUM_DOCUMENTS, 1
         )
-        documentScanIntent.putExtra(DocumentScannerExtra.EXTRA_IMAGE_PROVIDER,imageProvider)
+        documentScanIntent.putExtra(DocumentScannerExtra.EXTRA_IMAGE_PROVIDER, imageProvider)
 
         return documentScanIntent
     }
@@ -137,14 +144,11 @@ class GoapptivDocumentScanner : FlutterPlugin, MethodChannel.MethodCallHandler, 
     /**
      * add document scanner result handler and launch the document scanner
      */
-    private fun startScan(imageProvider: String,letUserCropImage: Boolean) {
-        val intent = createDocumentScanIntent(imageProvider,letUserCropImage)
+    private fun startScan(imageProvider: String, letUserCropImage: Boolean) {
+        val intent = createDocumentScanIntent(imageProvider, letUserCropImage)
         try {
             ActivityCompat.startActivityForResult(
-                this.activity,
-                intent,
-                START_DOCUMENT_ACTIVITY,
-                null
+                this.activity, intent, START_DOCUMENT_ACTIVITY, null
             )
         } catch (e: ActivityNotFoundException) {
             pendingResult?.error("ERROR", "FAILED TO START ACTIVITY", null)
