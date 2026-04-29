@@ -19,7 +19,8 @@ class MethodChannelGoapptivDocumentScanner
   Future<String?> getPicture({bool letUserCropImage = true}) async {
     List<Permission> permissions = [Permission.camera];
     Map<Permission, PermissionStatus> statuses = await permissions.request();
-    if (statuses.containsValue(PermissionStatus.denied)) {
+    if (statuses.containsValue(PermissionStatus.denied) ||
+        statuses.containsValue(PermissionStatus.permanentlyDenied)) {
       throw Exception(permissionDenied);
     }
     if (Platform.isAndroid) {
@@ -40,9 +41,10 @@ class MethodChannelGoapptivDocumentScanner
   Future<String?> getPictureFromGallery({bool letUserCropImage = true}) async {
     List<Permission> permissions = [];
     if (Platform.isIOS) {
-      permissions.add(Permission.mediaLibrary);
+      permissions.add(Permission.photos);
       Map<Permission, PermissionStatus> statuses = await permissions.request();
-      if (statuses.containsValue(PermissionStatus.denied)) {
+      if (statuses.containsValue(PermissionStatus.denied) ||
+          statuses.containsValue(PermissionStatus.permanentlyDenied)) {
         throw Exception(permissionDenied);
       }
     }

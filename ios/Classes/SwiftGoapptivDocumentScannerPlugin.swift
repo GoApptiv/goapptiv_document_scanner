@@ -4,55 +4,64 @@ import UIKit
 
 public class SwiftGoapptivDocumentScannerPlugin: NSObject, FlutterPlugin {
     
-    var rootViewController: UIViewController?
     var result: FlutterResult?
     
-    
-    public override init() {
-        super.init()
-        rootViewController =
-            (UIApplication.shared.delegate?.window??.rootViewController)!;
+    private var rootViewController: UIViewController? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .filter { $0.activationState == .foregroundActive }
+            .first?
+            .windows
+            .first(where: { $0.isKeyWindow })?
+            .rootViewController
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: Utils.channelName, binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(
+            name: Utils.channelName,
+            binaryMessenger: registrar.messenger()
+        )
         let instance = SwiftGoapptivDocumentScannerPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         self.result = result
-        typealias channelMethod = () -> ()
-        var channelMethods : Dictionary = [String : channelMethod]()
-        channelMethods["getPicture"] = camera
-        channelMethods["getPictureFromGallery"] = gallery
-        if(!channelMethods.keys.contains(call.method)){
+        
+        switch call.method {
+        case "getPicture":
+            camera()
+        case "getPictureFromGallery":
+            gallery()
+        default:
             result(FlutterMethodNotImplemented)
         }
-        
-        channelMethods[call.method]!();
-        
     }
     
     private func camera() {
-        let scannerViewController: ImageScannerController = ImageScannerController()
+        guard let rootVC = rootViewController else {
+            result?(FlutterError(code: "NO_ROOT_VC", message: "rootViewController is nil", details: nil))
+            return
+        }
+        let scannerViewController = ImageScannerController()
         scannerViewController.imageScannerDelegate = self
         scannerViewController.modalPresentationStyle = .fullScreen
-
         if #available(iOS 13.0, *) {
             scannerViewController.overrideUserInterfaceStyle = .dark
         }
-
-        rootViewController?.present(scannerViewController, animated:true, completion:nil)
+        rootVC.present(scannerViewController, animated: true)
     }
     
-    func gallery() {
+    private func gallery() {
+        guard let rootVC = rootViewController else {
+            result?(FlutterError(code: "NO_ROOT_VC", message: "rootViewController is nil", details: nil))
+            return
+        }
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
         imagePicker.sourceType = .photoLibrary
         imagePicker.modalPresentationStyle = .fullScreen
-
-        rootViewController?.present(imagePicker, animated: true)
+        rootVC.present(imagePicker, animated: true)
     }
 }
 
