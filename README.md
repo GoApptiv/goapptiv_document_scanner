@@ -56,7 +56,7 @@ pod 'WeScan', :path => '.symlinks/plugins/goapptiv_document_scanner/ios/WeScan-3
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-  pod 'WeScan', :path => '.symlinks/plugins/edge_detection/ios/WeScan-3.0.0'
+  pod 'WeScan', :path => '.symlinks/plugins/goapptiv_document_scanner/ios/WeScan-3.0.0'
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 ```
@@ -74,8 +74,8 @@ Or in text format add the key:
 
 ### Android
 
-The plugin code is written in kotlin 1.7.10 so the same has to be set to the android project of yours for compilation.
-Change the kotlin_version to 1.7.10 in your `android/build.gradle` file.
+The plugin code is written in kotlin 2.1.20 so the same has to be set to the android project of yours for compilation.
+Change the kotlin_version to 2.1.20 in your `android/build.gradle` file.
 
 ```
 ext.kotlin_version = '2.1.20'
