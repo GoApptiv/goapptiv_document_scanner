@@ -6,15 +6,15 @@ public class SwiftGoapptivDocumentScannerPlugin: NSObject, FlutterPlugin {
     
     var result: FlutterResult?
     
-    private var rootViewController: UIViewController? {
-        UIApplication.shared.connectedScenes
+    
+    var rootViewController: UIViewController? {
+        let keyWindow = UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
-            .filter { $0.activationState == .foregroundActive }
-            .first?
-            .windows
-            .first(where: { $0.isKeyWindow })?
-            .rootViewController
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow } ?? (UIApplication.shared.delegate?.window ?? nil)
+        return keyWindow?.rootViewController
     }
+    
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(
