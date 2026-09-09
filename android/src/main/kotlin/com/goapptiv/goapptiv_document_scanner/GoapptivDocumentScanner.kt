@@ -83,14 +83,20 @@ class GoapptivDocumentScanner : FlutterPlugin, MethodCallHandler, ActivityAware 
                         // check for errors
                         val error = data?.extras?.getString("error")
                         if (error != null) {
-                            throw Exception("error - $error")
+                            this.pendingResult?.error("SCAN_ERROR", error, null)
+                            this.pendingResult = null
+                            return@ActivityResultListener true
                         }
 
                         // get an array with scanned document file paths
-
                         val croppedImageResults =
                             data?.getStringArrayListExtra("croppedImageResults")?.toList()
-                                ?: throw Exception("No cropped images returned")
+
+                        if (croppedImageResults.isNullOrEmpty()) {
+                            this.pendingResult?.error("SCAN_ERROR", "No cropped images returned", null)
+                            this.pendingResult = null
+                            return@ActivityResultListener true
+                        }
 
                         Log.d("GoapptivDocumentScanner", croppedImageResults[0])
 
@@ -102,12 +108,14 @@ class GoapptivDocumentScanner : FlutterPlugin, MethodCallHandler, ActivityAware 
 
                         // trigger the success event handler with an array of cropped images
                         this.pendingResult?.success(successResponse)
+                        this.pendingResult = null
                         return@ActivityResultListener true
                     }
 
                     Activity.RESULT_CANCELED -> {
                         // user closed camera
                         this.pendingResult?.success(emptyList<String>())
+                        this.pendingResult = null
                         return@ActivityResultListener true
                     }
 
