@@ -29,16 +29,26 @@ class ImageUtil {
      * @return image bitmap
      */
     fun getImageFromFilePath(filePath: String): Bitmap {
-        // read image as matrix using OpenCV
+        // First try reading image as matrix using OpenCV
         val image: Mat = Imgcodecs.imread(filePath)
 
-        // convert image to RGB color space since OpenCV reads it using BGR color space
-        Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2BGR)
+        if (!image.empty()) {
+            try {
+                // convert image to RGB color space since OpenCV reads it using BGR color space
+                Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2BGR)
 
-        // convert image matrix to bitmap
-        val bitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888)
-        Utils.matToBitmap(image, bitmap)
-        return bitmap
+                // convert image matrix to bitmap
+                val bitmap = Bitmap.createBitmap(image.cols(), image.rows(), Bitmap.Config.ARGB_8888)
+                Utils.matToBitmap(image, bitmap)
+                return bitmap
+            } catch (e: Exception) {
+                // Fallback to BitmapFactory below
+            }
+        }
+
+        // Fallback: decode using Android's native BitmapFactory (handles HEIC, WebP, large buffers reliably)
+        return BitmapFactory.decodeFile(filePath)
+            ?: throw Exception("Failed to decode image from path: $filePath")
     }
 
     /**
@@ -51,7 +61,17 @@ class ImageUtil {
      */
     fun crop(photoFilePath: String, corners: Quad): Bitmap {
         // read image with OpenCV
-        val image = Imgcodecs.imread(photoFilePath)
+        var image = Imgcodecs.imread(photoFilePath)
+
+        if (image.empty()) {
+            // If OpenCV imread fails, load via BitmapFactory and convert to OpenCV Mat
+            val fallbackBitmap = BitmapFactory.decodeFile(photoFilePath)
+                ?: throw Exception("Failed to load image for cropping from path: $photoFilePath")
+            image = Mat()
+            Utils.bitmapToMat(fallbackBitmap, image)
+            // bitmapToMat produces RGBA; convert to BGR so the following pipeline is consistent
+            Imgproc.cvtColor(image, image, Imgproc.COLOR_RGBA2BGR)
+        }
 
         // convert image to RGB color space since OpenCV reads it using BGR color space
         Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2BGR)
