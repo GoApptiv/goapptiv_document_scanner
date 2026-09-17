@@ -102,7 +102,12 @@ class DocumentScannerActivity : AppCompatActivity() {
             filePath=originalPhotoPath
 
             // get bitmap from photo file path
-             photo = ImageUtil().getImageFromFilePath(originalPhotoPath)
+            try {
+                photo = ImageUtil().getImageFromFilePath(originalPhotoPath)
+            } catch (exception: Exception) {
+                finishIntentWithError("unable to load image: ${exception.message}")
+                return@CameraUtil
+            }
 
             // get document corners by detecting them, or falling back to photo corners with
             // slight margin if we can't find the corners
@@ -183,7 +188,12 @@ class DocumentScannerActivity : AppCompatActivity() {
             filePath=originalPhotoPath
 
             // get bitmap from photo file path
-            photo = ImageUtil().getImageFromFilePath(originalPhotoPath)
+            try {
+                photo = ImageUtil().getImageFromFilePath(originalPhotoPath)
+            } catch (exception: Exception) {
+                finishIntentWithError("unable to load image: ${exception.message}")
+                return@GalleryUtil
+            }
 
             // get document corners by detecting them, or falling back to photo corners with
             // slight margin if we can't find the corners
