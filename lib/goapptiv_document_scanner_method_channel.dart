@@ -17,7 +17,17 @@ class MethodChannelGoapptivDocumentScanner
   @visibleForTesting
   final methodChannel = const MethodChannel('goapptiv_document_scanner');
 
-  final id = DateTime.now().microsecondsSinceEpoch.toString();
+  /// The id of the scanner currently held by the native side, if any.
+  ///
+  /// The native side caches one scanner per id, together with the options it
+  /// was created with, so reusing an id silently reuses the earlier options.
+  /// This class is reached through [GoapptivDocumentScannerPlatform.instance],
+  /// a single object shared by every caller in the app, so an id held per
+  /// instance would be shared by the host app and any package that also
+  /// depends on this plugin. Each scan therefore gets a fresh id.
+  String? _activeScannerId;
+
+  static int _scannerIdCounter = 0;
 
   @override
   Future<String?> getPicture({bool letUserCropImage = true}) async {
@@ -58,19 +68,29 @@ class MethodChannelGoapptivDocumentScanner
   @override
   Future<DocumentScanningResult> scanDocument(
       DocumentScannerOptions options) async {
+    // Release the scanner kept for the previous scan so its options cannot
+    // leak into this one.
+    await closeScanner();
+
+    final String scannerId =
+        '${DateTime.now().microsecondsSinceEpoch}-${_scannerIdCounter++}';
+    _activeScannerId = scannerId;
+
     final dynamic results = await methodChannel
         .invokeMapMethod<dynamic, dynamic>(
             'vision#startDocumentScanner', <String, dynamic>{
       'options': options.toJson(),
-      'id': id,
+      'id': scannerId,
     });
     return DocumentScanningResult.fromJson(results);
   }
 
   @override
-  Future<void> closeScanner() {
-    debugPrint("current ID: $id");
-    return methodChannel
-        .invokeMethod<void>('vision#closeDocumentScanner', {'id': id});
+  Future<void> closeScanner() async {
+    final String? scannerId = _activeScannerId;
+    if (scannerId == null) return;
+    _activeScannerId = null;
+    await methodChannel
+        .invokeMethod<void>('vision#closeDocumentScanner', {'id': scannerId});
   }
 }
