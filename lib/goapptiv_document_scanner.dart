@@ -28,8 +28,4 @@ class GoapptivDocumentScanner {
   Future<DocumentScanningResult> scanDocument(DocumentScannerOptions options) {
     return GoapptivDocumentScannerPlatform.instance.scanDocument(options);
   }
-
-  Future<void> closeScanner() {
-    return GoapptivDocumentScannerPlatform.instance.closeScanner();
-  }
 }

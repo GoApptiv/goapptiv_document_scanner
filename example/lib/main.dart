@@ -18,18 +18,13 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   File? imageFile;
 
-  GoapptivDocumentScanner? goapptivDocumentScanner;
+  final GoapptivDocumentScanner goapptivDocumentScanner =
+      GoapptivDocumentScanner();
 
   @override
   void initState() {
     super.initState();
     // initPlatformState();
-  }
-
-  @override
-  void dispose() {
-    goapptivDocumentScanner?.closeScanner();
-    super.dispose();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method
@@ -56,11 +51,9 @@ class _MyAppState extends State<MyApp> {
                         mode: ScannerMode.baseMode,
                       );
                       try {
-                        await goapptivDocumentScanner?.closeScanner();
-                        goapptivDocumentScanner = GoapptivDocumentScanner();
-                        final result = await goapptivDocumentScanner
-                            ?.scanDocument(options);
-                        imageFile = File(result!.images.first);
+                        final result =
+                            await goapptivDocumentScanner.scanDocument(options);
+                        imageFile = File(result.images.first);
                         setState(() {});
                       } on Exception catch (e) {
                         print(e);
@@ -96,11 +89,9 @@ class _MyAppState extends State<MyApp> {
                         mode: ScannerMode.baseMode,
                       );
                       try {
-                        await goapptivDocumentScanner?.closeScanner();
-                        goapptivDocumentScanner = GoapptivDocumentScanner();
-                        final result = await goapptivDocumentScanner
-                            ?.scanDocument(options);
-                        imageFile = File(result!.images.first);
+                        final result =
+                            await goapptivDocumentScanner.scanDocument(options);
+                        imageFile = File(result.images.first);
                         setState(() {});
                       } on Exception catch (e) {
                         print(e);

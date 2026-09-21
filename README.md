@@ -110,23 +110,16 @@ import 'package:goapptiv_document_scanner/goapptiv_document_scanner.dart';
 ```dart
 
 // Only require for Android to close the scanner for releasing the resources
-GoapptivDocumentScanner? goapptivDocumentScanner;
-
-  @override
-  void dispose() {
-    goapptivDocumentScanner?.closeScanner();
-    super.dispose();
-  }
+final GoapptivDocumentScanner goapptivDocumentScanner =
+      GoapptivDocumentScanner();
 
 if (Platform.isAndroid) {
   final options = DocumentScannerOptions(
-    documentFormat: DocumentFormat.pdf,
+    documentFormat: DocumentFormat.jpeg,
     isGalleryImport: true,
     mode: ScannerMode.baseMode,
   );
   try {
-    goapptivDocumentScanner?.closeScanner();
-    goapptivDocumentScanner = GoapptivDocumentScanner();
     final result = await goapptivDocumentScanner?.scanDocument(options);
     log(result.toString());
   } on Exception catch (e) {
